@@ -1,50 +1,50 @@
 # Build stage
-FROM node:20-alpine AS builder
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt .
 
 # Install dependencies
-RUN npm ci
-
-# Copy source code
-COPY . .
-
-# Build the application
-RUN npm run build
+RUN pip install --no-cache-dir --user -r requirements.txt
 
 # Production stage
-FROM node:20-alpine
+FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy installed packages from builder
+COPY --from=builder /root/.local /root/.local
 
-# Install production dependencies only
-RUN npm ci --only=production
-
-# Copy built application from builder
-COPY --from=builder /app/dist ./dist
+# Copy application code
+COPY src ./src
+COPY .env.example .env
 
 # Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+RUN addgroup --gid 1001 --system python && \
+    adduser --uid 1001 --system --gid 1001 python
 
 # Change ownership
-RUN chown -R nodejs:nodejs /app
+RUN chown -R python:python /app
 
 # Switch to non-root user
-USER nodejs
+USER python
+
+# Make sure scripts in .local are usable
+ENV PATH=/root/.local/bin:$PATH
 
 # Expose port
 EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/v1/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"
+  CMD python -c "import sys; import urllib.request; sys.exit(0 if urllib.request.urlopen('http://localhost:3000/api/v1/health').getcode() == 200 else 1)"
 
 # Start the application
-CMD ["node", "dist/index.js"]
+CMD ["python", "-m", "src.main"]
