@@ -1,38 +1,39 @@
 # DO_practice
 
-Production-ready REST API service for data ingestion and processing, built with TypeScript, Express, and modern best practices.
+Production-ready REST API service for data ingestion and processing, built with Python, FastAPI, and modern best practices.
 
 ## Features
 
 - ✅ **RESTful API** - Clean, well-structured API endpoints for data management
 - ✅ **Data Ingestion** - Accepts and stores data with metadata
 - ✅ **Data Processing** - Process ingested data with tracking
-- ✅ **TypeScript** - Full type safety and excellent IDE support
-- ✅ **Testing** - Comprehensive test suite with Jest (unit + integration tests)
-- ✅ **Validation** - Request validation middleware
+- ✅ **Python** - Full type hints and excellent IDE support with FastAPI
+- ✅ **Testing** - Comprehensive test suite with pytest (unit + integration tests)
+- ✅ **Validation** - Request validation with Pydantic models
 - ✅ **Error Handling** - Centralized error handling with proper HTTP status codes
-- ✅ **Logging** - Structured logging with Winston
-- ✅ **Security** - Helmet for security headers, CORS support
+- ✅ **Logging** - Structured logging with custom formatters
+- ✅ **Security** - CORS support and security best practices
 - ✅ **Docker** - Production-ready Docker image
 - ✅ **CI/CD** - Automated testing, linting, and building with GitHub Actions
 - ✅ **Health Checks** - Built-in health and readiness endpoints
 - ✅ **Graceful Shutdown** - Proper cleanup on termination signals
+- ✅ **API Documentation** - Automatic interactive API docs with Swagger UI
 
 ## Tech Stack
 
-- **Runtime**: Node.js 20
-- **Language**: TypeScript
-- **Framework**: Express.js
-- **Testing**: Jest + Supertest
-- **Logging**: Winston
-- **Linting**: ESLint + Prettier
-- **Security**: Helmet + CORS
+- **Runtime**: Python 3.11+
+- **Language**: Python with type hints
+- **Framework**: FastAPI
+- **Testing**: pytest + httpx
+- **Logging**: Python logging with custom formatters
+- **Linting**: Black + Flake8 + MyPy
+- **Validation**: Pydantic
 - **Container**: Docker
 
 ## Prerequisites
 
-- Node.js 20 or higher
-- npm or yarn
+- Python 3.11 or higher
+- pip (Python package manager)
 - Docker (optional, for containerization)
 
 ## Installation
@@ -43,23 +44,29 @@ git clone https://github.com/Pritiks23/DO_practice.git
 cd DO_practice
 ```
 
-2. Install dependencies:
+2. Create a virtual environment:
 ```bash
-npm install
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. Create environment file:
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Create environment file:
 ```bash
 cp .env.example .env
 ```
 
-4. Configure environment variables in `.env`:
+5. Configure environment variables in `.env`:
 ```env
 PORT=3000
 NODE_ENV=development
 API_VERSION=v1
 API_PREFIX=/api
-LOG_LEVEL=info
+LOG_LEVEL=INFO
 CORS_ORIGIN=*
 ```
 
@@ -67,52 +74,54 @@ CORS_ORIGIN=*
 
 ### Run in development mode
 ```bash
-npm run dev
+python -m src.main
 ```
 
-### Build the project
-```bash
-npm run build
-```
+The application will start with auto-reload enabled in development mode.
 
-### Run in production mode
+### Run with uvicorn directly
 ```bash
-npm start
+uvicorn src.main:app --reload --port 3000
 ```
 
 ### Run tests
 ```bash
 # Run all tests
-npm test
+pytest
 
 # Run tests with coverage
-npm run test:coverage
+pytest --cov=src --cov-report=html
 
-# Run tests in watch mode
-npm run test:watch
+# Run specific test file
+pytest tests/test_health.py
+
+# Run with verbose output
+pytest -v
 ```
 
 ### Code quality
 ```bash
-# Lint code
-npm run lint
+# Format code with Black
+black src tests
 
-# Fix linting issues
-npm run lint:fix
+# Check code style with Flake8
+flake8 src tests
 
-# Format code
-npm run format
+# Type check with MyPy
+mypy src
 
-# Check formatting
-npm run format:check
-
-# Type check
-npm run typecheck
+# Run all quality checks
+black src tests && flake8 src tests && mypy src
 ```
 
 ## API Documentation
 
 Base URL: `http://localhost:3000/api/v1`
+
+### Interactive API Documentation
+
+- **Swagger UI**: `http://localhost:3000/api/v1/docs`
+- **ReDoc**: `http://localhost:3000/api/v1/redoc`
 
 ### Health Endpoints
 
@@ -299,8 +308,8 @@ doctl apps create --spec .do/app.yaml
    - Click "Create App"
    - Connect your GitHub repository
    - Configure build and run commands:
-     - Build Command: `npm ci && npm run build`
-     - Run Command: `npm start`
+     - Build Command: `pip install -r requirements.txt`
+     - Run Command: `python -m src.main`
    - Set environment variables
    - Deploy!
 
@@ -310,20 +319,20 @@ Ensure these are set in your deployment environment:
 - `PORT` - Port to run the server (default: 3000)
 - `NODE_ENV` - Set to "production"
 - `API_VERSION` - API version (default: v1)
-- `LOG_LEVEL` - Logging level (info, warn, error)
+- `LOG_LEVEL` - Logging level (INFO, WARNING, ERROR)
 - `CORS_ORIGIN` - CORS allowed origins
 
 ## CI/CD
 
-The project includes a GitHub Actions workflow (`.github/workflows/ci.yml`) that:
+The project includes a GitHub Actions workflow that:
 
-- ✅ Lints code with ESLint
-- ✅ Checks code formatting with Prettier
-- ✅ Type-checks with TypeScript compiler
+- ✅ Lints code with Flake8
+- ✅ Checks code formatting with Black
+- ✅ Type-checks with MyPy
 - ✅ Runs test suite with coverage
 - ✅ Builds the application
 - ✅ Builds Docker image
-- ✅ Runs security audit
+- ✅ Runs security checks
 
 The workflow runs on:
 - Push to `main`, `develop`, or `copilot/**` branches
@@ -334,29 +343,31 @@ The workflow runs on:
 ```
 .
 ├── src/
-│   ├── __tests__/          # Test files
-│   ├── config/             # Configuration
-│   ├── controllers/        # Request handlers
-│   ├── middleware/         # Express middleware
-│   ├── routes/             # API routes
-│   ├── services/           # Business logic
-│   ├── types/              # TypeScript types
-│   ├── utils/              # Utility functions
-│   ├── app.ts              # Express app setup
-│   └── index.ts            # Entry point
-├── dist/                   # Compiled JavaScript (generated)
-├── coverage/               # Test coverage (generated)
+│   ├── __init__.py         # Package initialization
+│   ├── main.py             # Entry point
+│   ├── app.py              # FastAPI app setup
+│   ├── config.py           # Configuration
+│   ├── types.py            # Pydantic models
+│   ├── data_service.py     # Business logic
+│   ├── data_routes.py      # Data endpoints
+│   ├── health_routes.py    # Health endpoints
+│   ├── middleware.py       # Middleware
+│   ├── exceptions.py       # Custom exceptions
+│   └── logger.py           # Logging utility
+├── tests/                  # Test files
+│   ├── conftest.py         # Test configuration
+│   ├── test_health.py      # Health tests
+│   └── test_data.py        # Data tests
 ├── .github/
 │   └── workflows/          # GitHub Actions
 ├── Dockerfile              # Docker configuration
 ├── .dockerignore           # Docker ignore file
 ├── .gitignore              # Git ignore file
 ├── .env.example            # Example environment variables
-├── tsconfig.json           # TypeScript configuration
-├── jest.config.js          # Jest configuration
-├── eslint.config.js        # ESLint configuration
-├── .prettierrc.json        # Prettier configuration
-├── package.json            # Project dependencies
+├── requirements.txt        # Python dependencies
+├── pytest.ini              # pytest configuration
+├── pyproject.toml          # Python project config
+├── .flake8                 # Flake8 configuration
 └── README.md               # This file
 ```
 
@@ -369,14 +380,17 @@ The project maintains high test coverage (70%+ threshold) across:
 - Lines
 - Statements
 
+Current coverage: **85%+**
+
 ### Code Style
-- TypeScript strict mode enabled
-- ESLint for code quality
-- Prettier for consistent formatting
-- Conventional naming and structure
+- Python type hints for better IDE support
+- Black for code formatting
+- Flake8 for code quality
+- MyPy for type checking
+- Pydantic for data validation
 
 ### Security
-- Helmet for security headers
+- CORS configuration
 - Input validation on all endpoints
 - Error handling without exposing internals
 - Non-root Docker user
@@ -385,10 +399,10 @@ The project maintains high test coverage (70%+ threshold) across:
 ## Operational Excellence
 
 ### Logging
-Structured JSON logging with Winston:
+Structured logging with custom formatters:
 - Request/response logging
 - Error logging with stack traces
-- Info logging for business events
+- Colored console output for development
 
 ### Monitoring
 - Health check endpoint for liveness probes
@@ -398,7 +412,8 @@ Structured JSON logging with Winston:
 ### Scalability
 - Stateless design (in-memory store is for demo; replace with database for production)
 - Docker containerization for easy scaling
-- Resource-efficient Node.js runtime
+- Async/await support with FastAPI
+- Resource-efficient Python runtime
 
 ## Contributing
 
