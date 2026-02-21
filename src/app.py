@@ -1,6 +1,7 @@
 """
 FastAPI application setup.
 """
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,7 +14,7 @@ from src.data_routes import router as data_router
 def create_app() -> FastAPI:
     """
     Create and configure the FastAPI application.
-    
+
     Returns:
         Configured FastAPI application
     """
@@ -23,9 +24,9 @@ def create_app() -> FastAPI:
         version="1.0.0",
         docs_url=f"{config.api_prefix}/{config.api_version}/docs",
         redoc_url=f"{config.api_prefix}/{config.api_version}/redoc",
-        openapi_url=f"{config.api_prefix}/{config.api_version}/openapi.json"
+        openapi_url=f"{config.api_prefix}/{config.api_version}/openapi.json",
     )
-    
+
     # CORS middleware
     origins = config.cors_origin.split(",") if config.cors_origin != "*" else ["*"]
     app.add_middleware(
@@ -35,23 +36,19 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    
+
     # Custom middleware
     app.middleware("http")(request_logger)
     app.middleware("http")(error_handler)
-    
+
     # Register routes
     app.include_router(
-        health_router,
-        prefix=f"{config.api_prefix}/{config.api_version}",
-        tags=["health"]
+        health_router, prefix=f"{config.api_prefix}/{config.api_version}", tags=["health"]
     )
     app.include_router(
-        data_router,
-        prefix=f"{config.api_prefix}/{config.api_version}/data",
-        tags=["data"]
+        data_router, prefix=f"{config.api_prefix}/{config.api_version}/data", tags=["data"]
     )
-    
+
     # 404 handler
     @app.exception_handler(404)
     async def not_found_handler(request: Request, exc):
@@ -60,9 +57,9 @@ def create_app() -> FastAPI:
             content={
                 "error": {
                     "message": f"Route {request.method} {request.url.path} not found",
-                    "statusCode": 404
+                    "statusCode": 404,
                 }
-            }
+            },
         )
-    
+
     return app

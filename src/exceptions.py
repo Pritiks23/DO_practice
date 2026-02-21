@@ -1,21 +1,17 @@
 """
 Exception classes for the application.
 """
+
 from typing import Any, Optional
 
 
 class AppError(Exception):
     """Base application error with status code."""
-    
-    def __init__(
-        self, 
-        status_code: int, 
-        message: str, 
-        details: Optional[Any] = None
-    ):
+
+    def __init__(self, status_code: int, message: str, details: Optional[Any] = None):
         """
         Initialize the error.
-        
+
         Args:
             status_code: HTTP status code
             message: Error message

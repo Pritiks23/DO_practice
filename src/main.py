@@ -1,6 +1,7 @@
 """
 Main entry point for the application.
 """
+
 import signal
 import sys
 import uvicorn
@@ -21,21 +22,17 @@ if __name__ == "__main__":
     # Register signal handlers for graceful shutdown
     signal.signal(signal.SIGTERM, handle_shutdown)
     signal.signal(signal.SIGINT, handle_shutdown)
-    
+
     logger.info(
         "Server starting",
-        extra={
-            "port": config.port,
-            "env": config.node_env,
-            "api_version": config.api_version
-        }
+        extra={"port": config.port, "env": config.node_env, "api_version": config.api_version},
     )
-    
+
     # Run the application
     uvicorn.run(
         "src.main:app",
         host="0.0.0.0",
         port=config.port,
         log_level=config.log_level.lower(),
-        reload=config.node_env == "development"
+        reload=config.node_env == "development",
     )
