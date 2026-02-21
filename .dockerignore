@@ -6,14 +6,34 @@ npm-debug.log
 .env.*
 !.env.example
 coverage
+htmlcov
 *.md
 !README.md
 .vscode
 .idea
+
+# Python specific
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+ENV/
+.pytest_cache/
+.mypy_cache/
+.coverage
+*.egg-info/
+dist/
+build/
+
+# TypeScript/Node (to be removed)
 dist
-src
 tsconfig.json
 jest.config.js
 eslint.config.js
 .prettierrc.json
-.eslintrc.json.old
+package.json
+package-lock.json
