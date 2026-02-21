@@ -44,7 +44,7 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:3000/api/v1/health').read()"
+  CMD python -c "import sys; import urllib.request; sys.exit(0 if urllib.request.urlopen('http://localhost:3000/api/v1/health').getcode() == 200 else 1)"
 
 # Start the application
 CMD ["python", "-m", "src.main"]

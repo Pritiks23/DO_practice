@@ -51,9 +51,38 @@ class ColoredConsoleFormatter(logging.Formatter):
 
         msg = f"{timestamp} [{color}{record.levelname}{self.RESET}]: {record.getMessage()}"
 
-        # Add extra fields if present
-        if hasattr(record, "extra_data"):
-            meta_str = json.dumps(record.extra_data, indent=2)
+        # Collect extra fields (anything added via extra parameter)
+        extra_data = {
+            k: v
+            for k, v in record.__dict__.items()
+            if k
+            not in [
+                "name",
+                "msg",
+                "args",
+                "created",
+                "filename",
+                "funcName",
+                "levelname",
+                "levelno",
+                "lineno",
+                "module",
+                "msecs",
+                "message",
+                "pathname",
+                "process",
+                "processName",
+                "relativeCreated",
+                "thread",
+                "threadName",
+                "exc_info",
+                "exc_text",
+                "stack_info",
+            ]
+        }
+
+        if extra_data:
+            meta_str = json.dumps(extra_data, indent=2)
             msg += f" {meta_str}"
 
         return msg
