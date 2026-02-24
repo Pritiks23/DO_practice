@@ -371,6 +371,30 @@ The workflow runs on:
 └── README.md               # This file
 ```
 
+app.yaml-> defining how the backend service is dep;poyed scaled and monitored, source control integration, build and run commands, environmental variables, runtime environment, health checks. Operationalizes the API turnis codebase into a running monitored publicly accessible production service.
+ci.yaml-> CI/CD pipeline inside GIthub ACtions, defensive engineering workflow preventing broken code, style drift, failing tests, import errors, container misconfigurations and known security vulnerabilities from reaching production. Ensures every deployment is technically validated before being released.
+src/directory-> contains all application source code separates business logic and application modules from infrastructure, configuration, tests, CI files.
+src/_init__.py-> turns src directory into an importable module
+app.py-> Archietcturally it is responsible for assembling all application components- configuration, middleware, routing and error handling into a fully configured FastAPI runtime instance. I used def create_app() factory function instead of global app=FastAPI() so I can enable test isolation, each test can create a fresh app, support multiple environments(dev,stage,prod).
+src/Config.py-> manages all the settings the app needs like which prot to urn on, API version logging which websites are allowed to talk to it(CORS). Instead of hardcoding these values, it loads them from the environment variables, this separation makes the app easier to run in different environments(prod,dev,locally)
+src/data_routes.py-> defines API endpoints that let clients read, update, process and delete data records. All request validation, routing and error handling happens here while the actual data operations are delegated to data_service.py.
+src/data_service.py-> acts as a centralized brain that manages all operations, architecturally its designed to be the layer that talks to whatever storage we choose keeping the API code decoupled from the database.
+src/exceptions.py-> defined custom error classes like AppError so the application can raise and handle errors with consistent HTTP status codes and messages.
+src/health-routes.py > provides the endpoints that let external systems check whether the API is running /health and /ready to serve requests giving uptime status and version info to monitor service health.
+src/logger.py-> centralized logging system for app color coded (based if its debug, info, warnings, errors, critical)
+src/main.py-> the file that starts the FastAPI server. Architecturally it handles graceful startup and shutdown, sets up signal handlers, logs startup info and runs the app using Uvicorn(bridge between ocde app.py and outside world)
+src/middleware.py-> app's watchtower and safety net sits between incoming requests and routes to log every request with details and how log ut took and catch and standardize errors whether its a known AppError, a ValueError or unexpected exection client gets a consistent JSON response and the error is logged for monitoring. 
+src/types.py-> where all "shapes" of the data is defined, what a data record could look like and what the health check response looks like so app always knows what kind of data to expect and return so everything is more consistent and less error prone.
+Dockerfile-> recipe for building a container that can run the app, installs python and dependencies in a "buildinder" stage and copies app code into a production image, telling Docker how to start the app.
+.env environment-> provides a template for environment variables for the app, showing what settings needs to be configured without containing real secrets
+docker-compose.yaml-> defines how to run the app as a cotainer specifying build inscturoons, ports, environmental variables so it can be easily started with a single command
+tests/conftest.py-> creates a test version of the app and a fake browser client to check if the API workstests/test_data.py-> uses automates testing framework called pytest that runs all test by itself each function sends request to your API and assets the response matches what's expected if it doesn't pytest automatically reports it as a failure
+tests/test_health-> automatically checks the app /health and /ready endpoints to make sure they return these checks on its own and reports "pass" or "fail" without any manual testing. 
+
+
+
+
+
 ## Code Quality
 
 ### Test Coverage
